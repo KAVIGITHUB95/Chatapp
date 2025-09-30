@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStack } from "../../App";
 import { useNavigation } from "@react-navigation/native";
 import CountryPicker, { Country, CountryCode } from "react-native-country-picker-modal";
+import { useUserRegistration } from "../components/UserContext";
 
 type ContactProps = NativeStackNavigationProp<RootStack, "AvatarScreen">;
 
@@ -13,21 +14,19 @@ type ContactProps = NativeStackNavigationProp<RootStack, "AvatarScreen">;
 export default function ContactScreen() {
 
     const navigation = useNavigation<ContactProps>();
-
-
-    
-    const [countryCode, setCountryCode] = useState<CountryCode>("LK");
+    const [countryCode, setCountryCode] = useState<CountryCode>("LK"); 
     
     const [country, setCountry] = useState<Country | null>(null);
     const [show, setShow] = useState<boolean>(false);
+
+
+    const {userData, setUserData} = useUserRegistration();
     return (
     
     <SafeAreaView>
         <KeyboardAvoidingView behavior={Platform.OS === "android" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "android" ? 100 : 100 }>
+            
             <View className="p-5 items-center">
-                
-                
-                
                 <View>
                     
                     <Image source={require("../../assets/logo.png")} className="h-40 w-36"/>
@@ -48,13 +47,13 @@ export default function ContactScreen() {
                         <Text className="font-bold text-lg">Select Country</Text>
                         <AntDesign name="caret-down" size={24} color="black" style={{ marginTop: 5 }} />
                     </Pressable>
-                    <CountryPicker countryCode={countryCode} withFilter withFlag withCountryNameButton withCallingCode visible={show} onClose={() => { setShow(false); }} onSelect={(c) => { setCountryCode(c.cca2); setCountry(c); setShow(false); }} />
+                    <CountryPicker countryCode={countryCode} withFilter withFlag withCountryNameButton withCallingCode visible={show} onClose={() => { setShow(false); }} onSelect={(c) => { setCountryCode(c.cca2); setCountry(c); setShow(false); setUserData((previous) => ({ ...previous, countryCode: "+" + String(c.callingCode), })); }} />
                 
                 </View>
                 
                 <View className="mt-2 bg-red-100 flex flex-row justify-center">
-                    <TextInput inputMode="tel" className="h-16 font-bold text-lg border-y-4 border-y-green-600 w-[18%]" placeholder="+94" value={country ? `+${country.callingCode}` : ``}/>
-                    <TextInput inputMode="tel" className="h-16 font-bold text-lg border-y-4 border-y-green-600 w-[80%] ml-2" placeholder="77 #### ###" />
+                    <TextInput inputMode="tel" className="h-16 font-bold text-lg border-y-4 border-y-green-600 w-[18%]" placeholder="+94" value={country ? `+${country.callingCode}` : userData.countryCode} onChangeText={ (text)=> { setUserData((previous) => ({ ...previous, countryCode: text, })); }} />
+                    <TextInput inputMode="tel" className="h-16 font-bold text-lg border-y-4 border-y-green-600 w-[80%] ml-2" placeholder="77 #### ###" onChangeText={ (text) => { setUserData((previous) => ({ ...previous, contactNo: text, })); }} />
                 
                 </View>
                 <View className="mt-16 w-full">
