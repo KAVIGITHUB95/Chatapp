@@ -7,6 +7,8 @@ import { useUserRegistration } from "../components/UserContext";
 export default function AvatarScreen() {
     const [image, setImage] = useState<string | null>(null);
 
+    const { userData, setUserData } = useUserRegistration();
+
     const pickImage = async () => {
 
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -17,14 +19,11 @@ export default function AvatarScreen() {
         });
 
 
-
         if (!result.canceled) {
-
             setImage(result.assets[0].uri);
+            setUserData((previous) => ({ ...previous, profileImage: result.assets[0].uri, }));
+
         }
-
-
-
 
     };
 
@@ -37,7 +36,7 @@ export default function AvatarScreen() {
         require("../../assets/avatar/avatar_6.png"),
     ];
 
-    const { userData, setUserData } = useUserRegistration();
+
 
     return (
 
@@ -79,7 +78,12 @@ export default function AvatarScreen() {
                         Or select an avatar
                     </Text>
                     <FlatList data={avatars} horizontal keyExtractor={(_, index) => index.toString()} renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => setImage(Image.resolveAssetSource(item).uri)}>
+                        <TouchableOpacity onPress={() => {
+                            setImage(Image.resolveAssetSource(item).uri);
+                            setUserData((previous) => ({ ...previous, profileImage: Image.resolveAssetSource(item).uri, }));
+                        }}
+                        >
+
                             <Image source={item} className="h-20 w-20 rounded-full mx-2 border-2 border-gray-200"></Image>
                         </TouchableOpacity>
                     )}
