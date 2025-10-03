@@ -3,6 +3,8 @@ import { StatusBar, View, Image, Text, Pressable, FlatList, TouchableOpacity } f
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from 'expo-image-picker';
 import { useUserRegistration } from "../components/UserContext";
+import { validateProfileImage } from "../../util/Validation";
+import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 
 export default function AvatarScreen() {
     const [image, setImage] = useState<string | null>(null);
@@ -93,7 +95,16 @@ export default function AvatarScreen() {
             </View>
 
             <View className="w-full p-5">
-                <Pressable className="bg-green-600 h-14 justify-center items-center rounded-xl" onPress={() => { setUserData((previous) => ({ ...previous, profileImage: image, })); console.log(userData); }}>
+                <Pressable className="bg-green-600 h-14 justify-center items-center rounded-xl" onPress={() => {
+                    const validProfile = validateProfileImage(
+                        userData.profileImage ? { uri: userData.profileImage, type: "", fileSize: 0 } : null
+                    );
+                    if (validProfile) {
+                        Toast.show({ type: ALERT_TYPE.WARNING, title: "Warning", textBody: "Select a profile image or an avatar",});
+                    } else {
+                        console.log("done");
+                    }
+                    setUserData((previous) => ({ ...previous, profileImage: image, })); console.log(userData);}}>
                     <Text className="text-slate-100 dark:text-slate-100 font-bold text-2xl">
 
                         Create Account
